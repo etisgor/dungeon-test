@@ -1,4 +1,4 @@
-name: Deploy GitHub Pages
+name: Deploy Dungeon to GitHub Pages
 
 on:
   push:
@@ -16,14 +16,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the site source
-        uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - name: Build the site
-        uses: actions/jekyll-build-pages@v1
-      - name: Upload the built site
-        uses: actions/upload-pages-artifact@v5.0.0
+      - name: Verify the public build
+        run: |
+          test -z "$(find site -type l -print)"
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { createHash } from 'node:crypto';
+          import { readFileSync, readdirSync } from 'node:fs';
+          const root = 'site/';
+          const assets = readdirSync(root + 'assets');
+          assert.ok(assets.length && assets.every(file => /^index-[A-Za-z0-9_-]+\.(?:css|js)$/.test(file)));
+          const icons = ['dungeon-192.png', 'dungeon-512.png', 'dungeon-maskable-512.png'];
+          assert.deepEqual(readdirSync(root).sort(), ['assets', 'icons', 'index.html', 'manifest.webmanifest', 'worker.js']);
+          assert.deepEqual(readdirSync(root + 'icons').sort(), icons);
+          const manifest = JSON.parse(readFileSync(root + 'manifest.webmanifest', 'utf8'));
+          assert.equal(manifest.start_url, './');
+          assert.equal(manifest.scope, './');
+          assert.equal(manifest.display, 'standalone');
+          const worker = readFileSync(root + 'worker.js', 'utf8');
+          const release = JSON.parse(worker.match(/^const release = (.*);/)[1]);
+          assert.match(release.version, /^\d+\.\d+\.\d+$/);
+          const paths = ['index.html', 'manifest.webmanifest', ...icons.map(file => 'icons/' + file), ...assets.map(file => 'assets/' + file)].sort();
+          assert.deepEqual(release.files.map(([path]) => path).sort(), paths);
+          for (const [path, integrity] of release.files) {
+            assert.equal(integrity, 'sha256-' + createHash('sha256').update(readFileSync(root + path)).digest('base64'), path);
+          }
+          JS
+      - uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: site
 
   deploy:
     needs: build
@@ -33,8 +57,7 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: Deploy the site
-        id: deployment
-        uses: actions/deploy-pages@v5.0.1
+      - uses: actions/deploy-pages@v5.0.1
+        id: deploy

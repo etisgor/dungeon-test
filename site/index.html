@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Phaser 3.90.0
+The MIT License (MIT)
+
+Copyright (c) 2024 Richard Davey, Phaser Studio Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+EventEmitter3
+The MIT License (MIT)
+
+Copyright (c) 2014 Arnout Kazemier
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111714">
+  <meta name="description" content="A private playtest of Dungeon's first expedition.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/dungeon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="./icons/dungeon-192.png">
+  <title>Dungeon | The Broken Threshold</title>
+  <script type="module" crossorigin src="./assets/index-Dt1JhqKN.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-_J9534md.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">◆</span><div><span class="brand-name">DUNGEON</span><span class="version" id="client-version"></span></div></div>
+    <div class="resources" aria-label="Party resources">
+      <span class="resource"><span class="resource-icon gold-icon" aria-hidden="true">◉</span><span>Gold</span><strong id="gold">0</strong></span>
+      <span class="resource"><span class="resource-icon soul-icon" aria-hidden="true">◇</span><span>Souls</span><strong id="souls">0</strong></span>
+    </div>
+    <button type="button" class="quiet-button" id="help" aria-label="Controls and settings">Controls</button>
+  </header>
+
+  <main class="shell">
+    <div class="title-row">
+      <div><p class="chapter">The first expedition</p><h1>The Broken Threshold</h1></div>
+      <button type="button" class="quiet-button view-toggle" id="follow" aria-pressed="true">Camera follows party</button>
+    </div>
+
+    <div class="layout">
+      <section class="world-card" aria-label="Dungeon world view">
+        <div class="map-header">
+          <span class="map-location"><span class="location-dot" aria-hidden="true"></span><span id="floor-name">The broken threshold</span></span>
+          <button type="button" class="text-button" id="battle-chip" hidden>View encounter</button>
+          <span class="map-hint" id="world-status">At the broken portal</span>
+        </div>
+        <div id="world" aria-label="Dungeon cross-section. The Expedition panel also lists discovered destinations."></div>
+        <div class="world-controls">
+          <div class="movement-controls" aria-label="Movement">
+            <button type="button" class="key-button" id="left" aria-label="Move left">←</button>
+            <button type="button" class="key-button" id="right" aria-label="Move right">→</button>
+            <button type="button" class="key-button interact-key" id="interact">Interact <kbd>E</kbd></button>
+          </div>
+          <span id="camera-hint">Click the world to move or select a site</span>
+          <button type="button" class="quiet-button bandage-button" id="bandage" disabled>Bandage <span id="bandages">0</span></button>
+        </div>
+      </section>
+
+      <aside class="side-card" aria-label="Expedition management">
+        <div class="vitals">
+          <span class="vital-label"><span aria-hidden="true">✦</span> Party health</span>
+          <strong id="health">60 / 60</strong>
+          <div class="meter health-meter" aria-hidden="true"><div id="health-fill"></div></div>
+        </div>
+        <nav class="tabs" aria-label="Expedition panels">
+          <button type="button" data-tab="expedition" aria-pressed="true">Expedition</button>
+          <button type="button" data-tab="party" aria-pressed="false">Party</button>
+          <button type="button" data-tab="cargo" aria-pressed="false">Cargo</button>
+          <button type="button" data-tab="journal" aria-pressed="false">Journal</button>
+        </nav>
+        <div id="panel" class="panel"></div>
+        <section class="client-panel" aria-label="Save and update">
+          <div class="client-actions">
+            <button type="button" class="primary-button" id="save-now">Save</button>
+            <button type="button" class="quiet-button" id="export-save">Export JSON</button>
+            <button type="button" class="quiet-button" id="import-save">Import JSON</button>
+            <input type="file" id="save-file" accept="application/json,.json" hidden>
+          </div>
+          <div class="client-updates">
+            <button type="button" class="quiet-button" id="check-client" hidden>Check update</button>
+            <button type="button" class="primary-button" id="apply-client" hidden>Apply update</button>
+          </div>
+          <p id="offline-status" role="status">Preparing offline play…</p>
+          <p id="save-status" role="status"></p>
+        </section>
+      </aside>
+    </div>
+    <div class="world-footer">
+      <span id="narration" role="status" aria-live="polite">You wake beside a broken portal. The passage ahead is silent.</span>
+      <span class="keyboard-hint"><kbd>A</kbd><kbd>D</kbd> Move <kbd>E</kbd> Interact <kbd>F</kbd> Follow</span>
+    </div>
+  </main>
+
+  <dialog class="sheet combat-sheet" id="combat-view" aria-labelledby="combat-title">
+    <div class="sheet-heading"><div><p class="chapter">Active encounter</p><h2 id="combat-title">Cave rats</h2></div><button type="button" class="quiet-button" id="close-combat">World view</button></div>
+    <div id="arena" class="arena" aria-hidden="true"></div>
+    <div class="combat-health">
+      <div><span>Party</span><span id="party-vital">60 / 60</span><div class="meter health-meter"><div id="party-combat-fill"></div></div></div>
+      <div><span id="enemy-label">Enemy</span><span id="enemy-vital"></span><div class="meter enemy-meter"><div id="enemy-combat-fill"></div></div></div>
+    </div>
+    <p id="combat-message" class="combat-message"></p>
+    <div class="combat-actions">
+      <button type="button" class="primary-button" id="brace">Brace <kbd>Space</kbd></button>
+      <button type="button" class="quiet-button" id="combat-bandage">Use bandage</button>
+      <button type="button" class="quiet-button" id="mode">Assisted mode</button>
+    </div>
+  </dialog>
+
+  <dialog class="sheet help-sheet" id="help-view" aria-labelledby="help-title">
+    <div class="sheet-heading"><div><p class="chapter">Field guide</p><h2 id="help-title">Controls</h2></div><button type="button" class="quiet-button" id="close-help">Close</button></div>
+    <dl>
+      <div><dt>Move</dt><dd>Click on a floor to set a destination, hold the movement buttons, or use A / D or the arrow keys.</dd></div>
+      <div><dt>Interact</dt><dd>Click a site and select Travel, or press E nearby. At the stairs, choose the upper or lower landing.</dd></div>
+      <div><dt>Camera</dt><dd>Press F to follow the party. Turn follow off to pan the map by dragging or scrolling.</dd></div>
+      <div><dt>Combat</dt><dd>Attacks resolve automatically. Open the encounter for details and use Brace in assisted mode to reduce the next hit.</dd></div>
+      <div><dt>Cargo</dt><dd>Bring it back to the portal before it can be used. Defeat sends the party to the portal and loses unsecured cargo.</dd></div>
+    </dl>
+    <div class="help-actions"><button type="button" class="quiet-button" id="new-game">Restart expedition</button></div>
+  </dialog>
+</body>
+</html>

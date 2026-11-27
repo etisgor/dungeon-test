@@ -1,5 +1,5 @@
-# Dungeon Playtest Launcher
+# Dungeon
 
-A public GitHub Pages launcher for the private Dungeon prototype. The site links to the access-controlled browser build and private release. Update `version.json` when publishing a new playable build.
+[Play Dungeon](https://etisgor.github.io/dungeon-test/)
 
-[Open the launcher](https://etisgor.github.io/dungeon-test/)
+This repository publishes the compiled Dungeon browser client. GitHub Pages deploys the contents of `site/` after checking the offline release hashes.
