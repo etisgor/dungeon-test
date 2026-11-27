@@ -50,13 +50,13 @@ SOFTWARE.
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111714">
-  <meta name="description" content="A private playtest of Dungeon's first expedition.">
+  <meta name="description" content="Playtest Dungeon's first expedition in your browser.">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/dungeon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="./icons/dungeon-192.png">
   <title>Dungeon | The Broken Threshold</title>
-  <script type="module" crossorigin src="./assets/index-Dt1JhqKN.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-_J9534md.css">
+  <script type="module" crossorigin src="./assets/index-IetGLOsR.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DU4mJPEz.css">
 </head>
 <body>
   <header class="masthead">
@@ -89,7 +89,7 @@ SOFTWARE.
             <button type="button" class="key-button interact-key" id="interact">Interact <kbd>E</kbd></button>
           </div>
           <span id="camera-hint">Click the world to move or select a site</span>
-          <button type="button" class="quiet-button bandage-button" id="bandage" disabled>Bandage <span id="bandages">0</span></button>
+          <button type="button" class="quiet-button" id="inventory">Inventory</button>
         </div>
       </section>
 
@@ -124,23 +124,36 @@ SOFTWARE.
     </div>
     <div class="world-footer">
       <span id="narration" role="status" aria-live="polite">You wake beside a broken portal. The passage ahead is silent.</span>
-      <span class="keyboard-hint"><kbd>A</kbd><kbd>D</kbd> Move <kbd>E</kbd> Interact <kbd>F</kbd> Follow</span>
+      <span class="keyboard-hint"><kbd>A</kbd><kbd>D</kbd> Move <kbd>E</kbd> Interact <kbd>I</kbd> Inventory <kbd>F</kbd> Follow</span>
     </div>
   </main>
 
   <dialog class="sheet combat-sheet" id="combat-view" aria-labelledby="combat-title">
-    <div class="sheet-heading"><div><p class="chapter">Active encounter</p><h2 id="combat-title">Cave rats</h2></div><button type="button" class="quiet-button" id="close-combat">World view</button></div>
+    <div class="sheet-heading"><div><p class="chapter" id="combat-phase">Active encounter</p><h2 id="combat-title">Encounter</h2></div><button type="button" class="quiet-button" id="close-combat">World view</button></div>
     <div id="arena" class="arena" aria-hidden="true"></div>
     <div class="combat-health">
       <div><span>Party</span><span id="party-vital">60 / 60</span><div class="meter health-meter"><div id="party-combat-fill"></div></div></div>
       <div><span id="enemy-label">Enemy</span><span id="enemy-vital"></span><div class="meter enemy-meter"><div id="enemy-combat-fill"></div></div></div>
     </div>
-    <p id="combat-message" class="combat-message"></p>
-    <div class="combat-actions">
+    <p id="combat-message" class="combat-message" role="status"></p>
+    <div class="combat-actions" id="combat-actions">
       <button type="button" class="primary-button" id="brace">Brace <kbd>Space</kbd></button>
       <button type="button" class="quiet-button" id="combat-bandage">Use bandage</button>
+      <button type="button" class="quiet-button" id="combat-potion">Use potion</button>
       <button type="button" class="quiet-button" id="mode">Assisted mode</button>
     </div>
+    <button type="button" class="primary-button" id="loot-victory" hidden>Loot skeleton</button>
+  </dialog>
+
+  <dialog class="sheet inventory-sheet" id="inventory-view" aria-labelledby="inventory-title">
+    <div class="sheet-heading"><h2 id="inventory-title">Character &amp; inventory</h2><button type="button" class="quiet-button" id="close-inventory">Close</button></div>
+    <div id="inventory-content"></div>
+    <p id="inventory-status" class="inventory-status" role="status"></p>
+  </dialog>
+
+  <dialog class="sheet site-sheet" id="site-view" aria-labelledby="site-title">
+    <div class="sheet-heading"><h2 id="site-title"></h2><button type="button" class="quiet-button" id="close-site">Close</button></div>
+    <div id="site-content"></div>
   </dialog>
 
   <dialog class="sheet help-sheet" id="help-view" aria-labelledby="help-title">
@@ -148,8 +161,9 @@ SOFTWARE.
     <dl>
       <div><dt>Move</dt><dd>Click on a floor to set a destination, hold the movement buttons, or use A / D or the arrow keys.</dd></div>
       <div><dt>Interact</dt><dd>Click a site and select Travel, or press E nearby. At the stairs, choose the upper or lower landing.</dd></div>
+      <div><dt>Inventory</dt><dd>Open Inventory or press I. Select an item to equip, unequip, or use it.</dd></div>
       <div><dt>Camera</dt><dd>Press F to follow the party. Turn follow off to pan the map by dragging or scrolling.</dd></div>
-      <div><dt>Combat</dt><dd>Attacks resolve automatically. Open the encounter for details and use Brace in assisted mode to reduce the next hit.</dd></div>
+      <div><dt>Combat</dt><dd>Attacks resolve automatically. In assisted mode, Brace reduces the next hit. Bandages and potions used here come from Inventory.</dd></div>
       <div><dt>Cargo</dt><dd>Bring it back to the portal before it can be used. Defeat sends the party to the portal and loses unsecured cargo.</dd></div>
     </dl>
     <div class="help-actions"><button type="button" class="quiet-button" id="new-game">Restart expedition</button></div>
